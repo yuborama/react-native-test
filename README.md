@@ -1,50 +1,82 @@
-# Welcome to your Expo app 👋
+# Restaurant Listing App (Expo + React Native)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil construida con Expo Router que consume la API mock de HackerRank:
+`https://jsonmock.hackerrank.com/api/food_outlets`
 
-## Get started
+## Funcionalidades
 
-1. Install dependencies
+- Carga inicial de restaurantes desde la API.
+- Indicador de carga con `ActivityIndicator` (`testID="progress"`).
+- Header con el total mostrado: `<count> Restaurants Near You`.
+- Listado con `FlatList`.
+- ítems con nombre, ciudad, rating y votos.
+- Buscador por ciudad (`city` en query params).
+- Filtro por costo máximo (`estimated_cost`) en cliente.
+- Paginación/infinite scroll usando `page` + `total_pages`.
 
-   ```bash
-   npm install
-   ```
+## API
 
-2. Start the app
+Ejemplos de endpoints usados:
 
-   ```bash
-   npx expo start
-   ```
+- `https://jsonmock.hackerrank.com/api/food_outlets`
+- `https://jsonmock.hackerrank.com/api/food_outlets?city=Denver`
+- `https://jsonmock.hackerrank.com/api/food_outlets?city=Denver&page=2`
 
-In the output, you'll find options to open the app in a
+Respuesta esperada (resumen):
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- `page`, `per_page`, `total`, `total_pages`, `data[]`
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Estructura principal
 
-## Get a fresh project
+- `app/(tabs)/index.tsx`: pantalla principal (fetch, filtros y paginación).
+- `features/restaurant/components/Header.tsx`
+- `features/restaurant/components/Listing.tsx`
+- `features/restaurant/components/ListingItem.tsx`
+- `features/restaurant/styles.ts`
+- `features/restaurant/types.ts`
+- `app/(tabs)/_layout.tsx`: tabs (tab `Restaurant` con icono de comida).
 
-When you're ready, run:
+## Scripts
+
+Instalar dependencias:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Iniciar app:
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Android:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+```
 
-## Join the community
+iOS:
 
-Join our community of developers creating universal apps.
+```bash
+npm run ios
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Web:
+
+```bash
+npm run web
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+Nota: actualmente `package.json` no incluye script `test`.
+
+## Notas
+
+- Se usa `SafeAreaView` de `react-native-safe-area-context`.
+- La API de HackerRank no incluye imágenes de restaurantes en la respuesta.
