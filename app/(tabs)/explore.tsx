@@ -1,112 +1,195 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { searchMealsByName } from "@/features/meals/api";
+import type { Meal } from "@/features/meals/types";
 
-export default function TabTwoScreen() {
+function useDebouncedValue<T>(value: T, delayMs = 350) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timeoutId);
+  }, [value, delayMs]);
+
+  return debounced;
+}
+
+export default function ExploreScreen() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 350);
+
+  const [loading, setLoading] = useState(false);
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const runSearch = async () => {
+      const normalizedQuery = debouncedQuery.trim();
+
+      if (!normalizedQuery) {
+        setMeals([]);
+        setError(null);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const results = await searchMealsByName(normalizedQuery);
+        if (!cancelled) {
+          setMeals(results);
+        }
+      } catch (searchError) {
+        if (!cancelled) {
+          const message =
+            searchError instanceof Error
+              ? searchError.message
+              : "Unexpected search error";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    runSearch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Explore Meals</Text>
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search meals (e.g. chicken, pasta)"
+        autoCapitalize="none"
+        style={styles.input}
+      />
+
+      {loading ? <ActivityIndicator style={styles.loader} /> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+      {!loading && !error && debouncedQuery.trim() && meals.length === 0 ? (
+        <Text style={styles.emptyText}>No results</Text>
+      ) : null}
+
+      <FlatList
+        data={meals}
+        keyExtractor={(item) => item.idMeal}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <Pressable
+            style={styles.card}
+            onPress={() =>
+              router.push({
+                pathname: "/meal/[id]",
+                params: { id: item.idMeal },
+              })
+            }
+          >
+            <View style={styles.thumbnailWrapper}>
+              <Image
+                source={{ uri: item.strMealThumb }}
+                style={styles.thumbnail}
+              />
+            </View>
+            <View style={styles.cardBody}>
+              <Text style={styles.mealName}>{item.strMeal}</Text>
+              <Text style={styles.mealHint}>Tap to view details</Text>
+            </View>
+          </Pressable>
+        )}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    backgroundColor: "#F3F4F7",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#111",
+    marginBottom: 12,
+  },
+  input: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#D8DAE0",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 12,
+  },
+  loader: {
+    marginVertical: 8,
+  },
+  errorText: {
+    color: "#B31E1E",
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: "#4E5562",
+    marginBottom: 8,
+  },
+  listContent: {
+    gap: 12,
+    paddingBottom: 24,
+  },
+  card: {
+    borderWidth: 1,
+    borderColor: "#E7E9EF",
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "#FFFFFF",
+  },
+  thumbnail: {
+    width: "100%",
+    height: 180,
+  },
+  thumbnailWrapper: {
+    width: "100%",
+    height: 180,
+    overflow: "hidden",
+  },
+  cardBody: {
+    padding: 12,
+  },
+  mealName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#131722",
+  },
+  mealHint: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#667085",
   },
 });
