@@ -1,40 +1,43 @@
-# Restaurant Listing App (Expo + React Native)
+# Restaurant + Meals App (Expo Router)
 
-Aplicación móvil construida con Expo Router que consume la API mock de HackerRank:
-`https://jsonmock.hackerrank.com/api/food_outlets`
+Aplicacion React Native con Expo Router que incluye dos flujos:
+
+- `Restaurant` tab: listado de restaurantes desde la API mock de HackerRank.
+- `Meals` tab: buscador de recetas con TheMealDB + detalle de receta.
+
+![App Demo](assets/images/image.gif)
 
 ## Funcionalidades
 
-- Carga inicial de restaurantes desde la API.
-- Indicador de carga con `ActivityIndicator` (`testID="progress"`).
-- Header con el total mostrado: `<count> Restaurants Near You`.
-- Listado con `FlatList`.
-- ítems con nombre, ciudad, rating y votos.
-- Buscador por ciudad (`city` en query params).
-- Filtro por costo máximo (`estimated_cost`) en cliente.
-- Paginación/infinite scroll usando `page` + `total_pages`.
+### Tab: Restaurant
 
-## API
+- Fetch de restaurantes desde:
+  - `https://jsonmock.hackerrank.com/api/food_outlets`
+- Loader inicial con `ActivityIndicator` (`testID="progress"`).
+- Header con formato: `<count> Restaurants Near You`.
+- Lista con `FlatList`.
+- Render de item con nombre, ciudad, rating y votos.
+- Paginacion con `page` y `total_pages` al hacer scroll.
 
-Ejemplos de endpoints usados:
+### Tab: Meals
 
-- `https://jsonmock.hackerrank.com/api/food_outlets`
-- `https://jsonmock.hackerrank.com/api/food_outlets?city=Denver`
-- `https://jsonmock.hackerrank.com/api/food_outlets?city=Denver&page=2`
-
-Respuesta esperada (resumen):
-
-- `page`, `per_page`, `total`, `total_pages`, `data[]`
+- Busqueda por nombre usando TheMealDB:
+  - `https://www.themealdb.com/api/json/v1/1/search.php?s=<query>`
+- Debounce en input para evitar requests por cada tecla.
+- Cards con imagen y nombre del meal.
+- Navegacion al detalle por id:
+  - `https://www.themealdb.com/api/json/v1/1/lookup.php?i=<id>`
+- Detalle con imagen, categoria, area, ingredientes e instrucciones.
+- Estado vacio con Lottie aleatorio desde `assets/lotties` cada vez que la lista queda vacia.
 
 ## Estructura principal
 
-- `app/(tabs)/index.tsx`: pantalla principal (fetch, filtros y paginación).
-- `features/restaurant/components/Header.tsx`
-- `features/restaurant/components/Listing.tsx`
-- `features/restaurant/components/ListingItem.tsx`
-- `features/restaurant/styles.ts`
-- `features/restaurant/types.ts`
-- `app/(tabs)/_layout.tsx`: tabs (tab `Restaurant` con icono de comida).
+- `app/(tabs)/index.tsx`: pantalla `Restaurant` (listado + paginacion).
+- `app/(tabs)/explore.tsx`: pantalla `Meals` (search + listado).
+- `app/meal/[id].tsx`: detalle de meal.
+- `features/restaurant/*`: tipos, estilos y componentes del modulo restaurant.
+- `features/meals/*`: tipos y API helpers de meals.
+- `app/(tabs)/_layout.tsx`: tabs (`Restaurant` y `Meals`).
 
 ## Scripts
 
@@ -74,9 +77,8 @@ Lint:
 npm run lint
 ```
 
-Nota: actualmente `package.json` no incluye script `test`.
-
 ## Notas
 
 - Se usa `SafeAreaView` de `react-native-safe-area-context`.
-- La API de HackerRank no incluye imágenes de restaurantes en la respuesta.
+- `package.json` actualmente no incluye script `test`.
+- Los assets Lottie estan en `assets/lotties/`.
