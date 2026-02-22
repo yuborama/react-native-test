@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,6 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { searchMealsByName } from "@/features/meals/api";
 import type { Meal } from "@/features/meals/types";
+
+const EMPTY_LOTTIES = [
+  require("../../assets/lotties/fries-chips.json"),
+  require("../../assets/lotties/pinch.json"),
+  require("../../assets/lotties/pizza.json"),
+  require("../../assets/lotties/sausage.json"),
+];
 
 function useDebouncedValue<T>(value: T, delayMs = 350) {
   const [debounced, setDebounced] = useState(value);
@@ -34,6 +42,9 @@ export default function ExploreScreen() {
   const [loading, setLoading] = useState(false);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [emptyAnimationIndex, setEmptyAnimationIndex] = useState(() =>
+    Math.floor(Math.random() * EMPTY_LOTTIES.length),
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +88,12 @@ export default function ExploreScreen() {
     };
   }, [debouncedQuery]);
 
+  useEffect(() => {
+    if (!loading && !error && meals.length === 0) {
+      setEmptyAnimationIndex(Math.floor(Math.random() * EMPTY_LOTTIES.length));
+    }
+  }, [loading, error, meals]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Explore Meals</Text>
@@ -91,14 +108,33 @@ export default function ExploreScreen() {
       {loading ? <ActivityIndicator style={styles.loader} /> : null}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {!loading && !error && debouncedQuery.trim() && meals.length === 0 ? (
-        <Text style={styles.emptyText}>No results</Text>
-      ) : null}
-
       <FlatList
         data={meals}
         keyExtractor={(item) => item.idMeal}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          !loading &&
+            !error &&
+            meals.length === 0 &&
+            styles.listContentWhenEmpty,
+        ]}
+        ListEmptyComponent={
+          !loading && !error ? (
+            <View style={styles.emptyContainer}>
+              <LottieView
+                source={EMPTY_LOTTIES[emptyAnimationIndex]}
+                autoPlay
+                loop
+                style={styles.emptyAnimation}
+              />
+              <Text style={styles.emptyText}>
+                {debouncedQuery.trim()
+                  ? "No results for your search"
+                  : "Start typing to search meals"}
+              </Text>
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => (
           <Pressable
             style={styles.card}
@@ -150,6 +186,12 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loaderAnimation: {
+    width: 140,
+    height: 140,
   },
   errorText: {
     color: "#B31E1E",
@@ -157,11 +199,26 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: "#4E5562",
-    marginBottom: 8,
+    marginTop: 6,
+    textAlign: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 24,
+    paddingBottom: 12,
+  },
+  emptyAnimation: {
+    width: 220,
+    height: 220,
   },
   listContent: {
     gap: 12,
     paddingBottom: 24,
+  },
+  listContentWhenEmpty: {
+    flexGrow: 1,
   },
   card: {
     borderWidth: 1,
