@@ -1,0 +1,126 @@
+import { StyleSheet } from "react-native";
+
+export const colors = {
+  brandColor: "#1ba94c",
+  secondaryColor: "#097bbf",
+  errorColor: "#a93c32",
+  background: "#ECECEF",
+  card: "#F7F7F9",
+  border: "#E8E8EC",
+  textPrimary: "#111111",
+  textMuted: "#5A5A63",
+};
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+  },
+  loaderContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
+  },
+  headerText: {
+    fontSize: 30,
+    fontWeight: "700",
+    marginBottom: 18,
+    marginTop: 8,
+    textAlign: "center",
+    color: colors.textPrimary,
+  },
+  searchPanel: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 12,
+    marginBottom: 12,
+    gap: 8,
+  },
+  input: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    color: colors.textPrimary,
+    fontSize: 15,
+  },
+  searchButton: {
+    backgroundColor: colors.secondaryColor,
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  listContent: {
+    paddingBottom: 24,
+  },
+  footerLoader: {
+    paddingVertical: 12,
+  },
+  item: {
+    backgroundColor: colors.card,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    marginBottom: 12,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  itemLeft: {
+    flex: 1,
+    gap: 2,
+  },
+  itemRight: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    marginLeft: 12,
+  },
+  name: {
+    fontSize: 20,
+    lineHeight: 36,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+  city: {
+    fontSize: 16,
+    lineHeight: 20,
+    color: colors.textPrimary,
+  },
+  ratingRow: {
+    fontSize: 14,
+    lineHeight: 28,
+    color: colors.textPrimary,
+    fontWeight: "600",
+  },
+  ratingValue: {
+    fontSize: 14,
+    lineHeight: 28,
+    color: colors.textPrimary,
+    fontWeight: "700",
+  },
+  votes: {
+    fontSize: 17,
+    lineHeight: 20,
+    color: colors.textMuted,
+  },
+});
