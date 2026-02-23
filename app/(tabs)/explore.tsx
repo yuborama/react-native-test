@@ -4,17 +4,40 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { searchMealsByName } from "@/features/meals/api";
 import type { Meal } from "@/features/meals/types";
+
+type MealCardProps = {
+  item: Meal;
+  onOpenMeal: (item: Meal) => void;
+};
+
+function MealCard({ item, onOpenMeal }: MealCardProps) {
+  return (
+    <Pressable style={styles.card} onPress={() => onOpenMeal(item)}>
+      <View style={styles.thumbnailWrapper}>
+        <Animated.Image
+          source={{ uri: item.strMealThumb }}
+          style={styles.thumbnail}
+          sharedTransitionTag={`meal-image-${item.idMeal}`}
+        />
+      </View>
+      <View style={styles.cardBody}>
+        <Text style={styles.mealName}>{item.strMeal}</Text>
+        <Text style={styles.mealHint}>Tap to view details</Text>
+      </View>
+    </Pressable>
+  );
+}
 
 const EMPTY_LOTTIES = [
   require("../../assets/lotties/fries-chips.json"),
@@ -94,6 +117,19 @@ export default function ExploreScreen() {
     }
   }, [loading, error, meals]);
 
+  const openMealDetail = (item: Meal) => {
+    router.push({
+      pathname: "/meal/[id]",
+      params: {
+        id: item.idMeal,
+        name: item.strMeal,
+        thumb: item.strMealThumb,
+        category: item.strCategory ?? "",
+        area: item.strArea ?? "",
+      },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Explore Meals</Text>
@@ -136,26 +172,7 @@ export default function ExploreScreen() {
           ) : null
         }
         renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() =>
-              router.push({
-                pathname: "/meal/[id]",
-                params: { id: item.idMeal },
-              })
-            }
-          >
-            <View style={styles.thumbnailWrapper}>
-              <Image
-                source={{ uri: item.strMealThumb }}
-                style={styles.thumbnail}
-              />
-            </View>
-            <View style={styles.cardBody}>
-              <Text style={styles.mealName}>{item.strMeal}</Text>
-              <Text style={styles.mealHint}>Tap to view details</Text>
-            </View>
-          </Pressable>
+          <MealCard item={item} onOpenMeal={openMealDetail} />
         )}
       />
     </SafeAreaView>
