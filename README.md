@@ -28,6 +28,8 @@ Aplicacion React Native con Expo Router que incluye dos flujos:
 - Navegacion al detalle por id:
   - `https://www.themealdb.com/api/json/v1/1/lookup.php?i=<id>`
 - Detalle con imagen, categoria, area, ingredientes e instrucciones.
+- Shared Element Transition entre card y hero del detalle usando `react-native-reanimated` (`sharedTransitionTag`).
+- Header custom en el detalle (boton back).
 - Estado vacio con Lottie aleatorio desde `assets/lotties` cada vez que la lista queda vacia.
 
 ## Estructura principal
@@ -80,5 +82,14 @@ npm run lint
 ## Notas
 
 - Se usa `SafeAreaView` de `react-native-safe-area-context`.
+- Proyecto configurado como development build (scripts `expo run:android` y `expo run:ios`).
+- Feature flag habilitada en `package.json`:
+  - `reanimated.staticFeatureFlags.ENABLE_SHARED_ELEMENT_TRANSITIONS = true`
+- `newArchEnabled` esta activo en `app.json`.
+- Dependencias actuales:
+  - `expo ~54.0.33`
+  - `react-native-reanimated 4.2.2`
+  - `react-native-worklets 0.7.4`
+- Nota de compatibilidad: Expo SDK 54 espera versiones distintas de Reanimated/Worklets. Si aparecen problemas, revisar `npx expo install --check`.
 - `package.json` actualmente no incluye script `test`.
 - Los assets Lottie estan en `assets/lotties/`.
